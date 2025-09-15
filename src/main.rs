@@ -49,8 +49,10 @@ impl Config {
     fn build(args: &[String]) -> Result<Config, &'static str> {
         let mut no_env = String::new();
 
-        if args.len() < 3 || args.len() > 4 {
+        if args.len() < 3{
             return Err("not enough arguments");
+        } else if args.len() > 4 {
+            return Err("too many arguments");
         }
 
         //any string will suffice to delete the environment variable
