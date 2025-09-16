@@ -14,8 +14,8 @@ pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a st
     //query is shadowed now and is no longer a string slice
     let query = query.to_lowercase();
     //but it's a slice now!
+    //can also use .contains(&query), but purposefully verbose for mental note
     let query = &query[..];
-        //.filter(|line| line.to_lowercase().contains(query))
     contents
         .lines()
         .filter(|line| line.to_lowercase().contains(query))
