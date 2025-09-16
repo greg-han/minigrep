@@ -1,33 +1,25 @@
 
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query){
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 //query's lifetime is elided, and contents lifetime needs to be explicitly
 //mentioned, because otherwise Rust wouldn't know which variable's lifetime the return value needs
 //to be dependent on
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    //query is shadowed now
+    //query is shadowed now and is no longer a string slice
     let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for line in contents.lines(){
-        //signature of contains() takes a string slice, hence, reference
-        if line.to_lowercase().contains(&query){
-            results.push(line);
-        }
-    }
-
-    results
+    //but it's a slice now!
+    let query = &query[..];
+        //.filter(|line| line.to_lowercase().contains(query))
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(query))
+        .collect()
 }
 
 

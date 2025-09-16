@@ -6,9 +6,9 @@ use std::error::Error;
 use minigrep::{search,search_case_insensitive};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
 
-    let config = Config::build(&args).unwrap_or_else(|err| {
+    //env::args() returns an iterator with type String.
+    let config = Config::build(env::args()).unwrap_or_else(|err| {
         eprintln!("Problem passing arguments: {err}");
         process::exit(1);
     });
@@ -46,26 +46,36 @@ pub struct Config {
 }
 
 impl Config {
-    fn build(args: &[String]) -> Result<Config, &'static str> {
-        let mut no_env = String::new();
+    fn build(
+        mut args: impl Iterator<Item=String>
+        ) -> Result<Config, &'static str> {
 
-        if args.len() < 3{
-            return Err("not enough arguments");
-        } else if args.len() > 4 {
-            return Err("too many arguments");
-        }
+        //let mut no_env = String::new();
 
+        //ignore name of program and consume
+        args.next();
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path string"),
+        };
+
+
+        //Optional command, hence return a string.
         //any string will suffice to delete the environment variable
         //"IGNORE_CASE".
+        let no_env = match args.next() {
+            Some(arg) => arg,
+            None => String::new(),
+        };
+
         //env::remove_var is idempotent, so it can succeed infinitely
         //with or without the existence of "IGNORE_CASE"
-        if args.len() == 4 {
-            no_env = args[3].clone();
-        }
-
-        let query = args[1].clone();
-        let file_path = args[2].clone();
-
         if !no_env.is_empty() {
             unsafe {
                 env::remove_var("IGNORE_CASE");
